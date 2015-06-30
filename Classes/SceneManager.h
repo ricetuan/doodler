@@ -10,6 +10,8 @@
 #define __Doodler__SceneManager__
 
 #include "NetworkingWrapper.h"
+#include "Compressor.h"
+#include "Constants.h"
 
 class DrawingCanvas;
 class SceneManager : public NetworkingDelegate
@@ -19,16 +21,21 @@ public:
     void enterSoloGame();
     void returnToLobby();
     void connectAndEnterNetworkedGame();
-    void sendData(const void* data, unsigned long length);
+    void sendDataToBufferPool(LineData lineData);
+    void sendData();
+
     
 private:
     void receivedData(const void* data, unsigned long length) override;
     void stateChanged(ConnectionState state) override;
-    void loadDrawingScene(bool networked); 
-   
-
+    void loadDrawingScene(bool networked);
+    
+    //TODO: add some limit of buffer pool
+    std::vector<LineData> bufferPool;
+    
     DrawingCanvas* drawingCanvas;
     NetworkingWrapper* networkingWrapper;
+    Compressor* compressor;
     
     SceneManager();
     ~SceneManager();

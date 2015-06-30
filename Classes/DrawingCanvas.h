@@ -10,6 +10,7 @@
 #define __Doodler__DrawingCanvas__
 
 #include "CocosGUI.h"
+#include "Constants.h"
 
 class DrawingCanvas : public cocos2d::Node
 {
@@ -17,8 +18,7 @@ public:
     CREATE_FUNC(DrawingCanvas);
     void setNetworkedSession(bool networkedSession);
     bool getNetworkedSession();
-    void receivedData(const void* data, unsigned long length);
-    
+    void receivedData(LineData lineData);
 protected:
     cocos2d::DrawNode* drawNode;
     cocos2d::LayerColor* background;
@@ -28,7 +28,8 @@ protected:
     bool init() override;
     void onEnter() override;
     
-    void sendStrokeOverNetwork(cocos2d::Vec2 startPoint, cocos2d::Vec2 endPoint, float radius, cocos2d::Color4F color);
+    void sendToBufferPool(cocos2d::Vec2 startPoint, cocos2d::Vec2 endPoint, float radius, cocos2d::Color4F color);
+    void sendStrokeOverNetwork();
     void setupTouchHandling();
     void setupMenus();
     

@@ -8,7 +8,7 @@
 
 #include "SceneManager.h"
 #include "DrawingCanvas.h"
-#include "JSONPacker.h"
+#include "Compressor.h"
 
 using namespace cocos2d;
 
@@ -29,11 +29,13 @@ SceneManager::SceneManager()
     drawingCanvas = nullptr;
     networkingWrapper = new NetworkingWrapper();
     networkingWrapper->setDelegate(this);
+    compressor = new Compressor();
 }
 
 SceneManager::~SceneManager()
 {
     delete networkingWrapper;
+    delete compressor;
 }
 
 void SceneManager::enterSoloGame()
@@ -70,9 +72,16 @@ void SceneManager::loadDrawingScene(bool networked)
 
 void SceneManager::receivedData(const void* data, unsigned long length)
 {
+    const char* cstr = reinterpret_cast<const char*>(data);
+    std::string compressedJson = std::string(cstr, length);
+    
+    std::vector<LineData> dataList = this->compressor->unCompressData(compressedJson);
     if (drawingCanvas)
     {
-        drawingCanvas->receivedData(data, length);
+        for (auto it = dataList.cbegin(); it != dataList.cend(); ++it)
+        {
+            this->drawingCanvas->receivedData(*it);
+        }
     }
 }
 
@@ -97,9 +106,16 @@ void SceneManager::stateChanged(ConnectionState state)
     }
 }
 
-void SceneManager::sendData(const void* data, unsigned long length)
+void SceneManager::sendData()
 {
-    this->networkingWrapper->sendData(data, length);
+    std::string data = this->compressor->compressData(this->bufferPool);
+    this->bufferPool.clear();
+    this->networkingWrapper->sendData(data.c_str(), data.length());
+}
+
+void SceneManager::sendDataToBufferPool(LineData lineData)
+{
+    this->bufferPool.push_back(lineData);
 }
 
 

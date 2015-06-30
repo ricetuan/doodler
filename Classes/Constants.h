@@ -20,4 +20,12 @@ static const cocos2d::Color4F COLOR_YELLOW =  cocos2d::Color4F(240/255.0f, 185/2
 static const cocos2d::Color4F COLOR_RED    =  cocos2d::Color4F(242/255.0f, 108/255.0f, 76/255.0f, 1.0f);
 static const cocos2d::Color4F COLOR_WHITE  =  cocos2d::Color4F(245/255.0f, 244/255.0f, 240/255.0f, 1.0f);
 
+struct LineData
+{
+    cocos2d::Vec2 startPoint;
+    cocos2d::Vec2 endPoint;
+    cocos2d::Color4F color;
+    float radius;
+};
+
 #endif

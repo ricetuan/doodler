@@ -10,7 +10,7 @@
 #include "Lobby.h"
 #include "Constants.h"
 #include "SceneManager.h"
-#include "JSONPacker.h"
+
 
 using namespace cocos2d;
 
@@ -26,7 +26,6 @@ bool DrawingCanvas::init()
     this->addChild(background);
     this->addChild(drawNode);
 
-    
     return true;
 }
 
@@ -156,14 +155,20 @@ void DrawingCanvas::setupTouchHandling()
         
         if (this->networkedSession)
         {
-            this->sendStrokeOverNetwork(lastTouchPos, touchPos, radius, selectedColor);
+            this->sendToBufferPool(lastTouchPos, touchPos, radius, selectedColor);
         }
         
         lastRadius = radius;
         lastTouchPos = touchPos;
-        
-        
+        //no need to return true
     };
+    
+    touchListener->onTouchEnded = [&](Touch* touch, Event* event)
+    {
+        this->sendStrokeOverNetwork();
+    };
+    
+    
     this->getEventDispatcher()->addEventListenerWithSceneGraphPriority(touchListener, this);
 }
 
@@ -177,22 +182,25 @@ bool DrawingCanvas::getNetworkedSession()
     return this->networkedSession;
 }
 
-void DrawingCanvas::receivedData(const void* data, unsigned long length)
+void DrawingCanvas::receivedData(LineData lineData)
 {
-    const char* cstr = reinterpret_cast<const char*>(data);
-    std::string json = std::string(cstr, length);
-    JSONPacker::LineData lineData = JSONPacker::unpackLineDataJSON(json);
     drawNode->drawSegment(lineData.startPoint, lineData.endPoint, lineData.radius, lineData.color);
 }
 
-void DrawingCanvas::sendStrokeOverNetwork(cocos2d::Vec2 startPoint, cocos2d::Vec2 endPoint, float radius, cocos2d::Color4F color)
+void DrawingCanvas::sendToBufferPool(cocos2d::Vec2 startPoint, cocos2d::Vec2 endPoint, float radius, cocos2d::Color4F color)
 {
-    JSONPacker::LineData drawingData;
+    LineData drawingData;
     drawingData.startPoint = startPoint;
     drawingData.endPoint = endPoint;
     drawingData.radius = radius;
     drawingData.color = color;
-    std::string json = JSONPacker::packLineData(drawingData);
-    
-    SceneManager::getInstance()->sendData(json.c_str(), json.length());
+       
+    SceneManager::getInstance()->sendDataToBufferPool(drawingData);
 }
+
+void DrawingCanvas::sendStrokeOverNetwork()
+{
+    SceneManager::getInstance()->sendData();
+}
+
+

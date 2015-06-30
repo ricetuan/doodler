@@ -10,18 +10,12 @@
 #define __Doodler__JSONPacker__
 
 #include "cocos2d.h"
+#include "Constants.h"
+
 namespace JSONPacker
 {
-    struct LineData
-    {
-        cocos2d::Vec2 startPoint;
-        cocos2d::Vec2 endPoint;
-        cocos2d::Color4F color;
-        float radius;
-    };
-    
-    LineData unpackLineDataJSON(std::string json);
-    std::string packLineData(LineData lineData);
+    std::vector<LineData> unpackLineDataJSON(std::string json);
+    std::string packLineData(std::vector<LineData> lineDatalist);
 }
 
 #endif /* defined(__Doodler__JSONPacker__) */
