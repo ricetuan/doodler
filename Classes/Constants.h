@@ -27,5 +27,9 @@ struct LineData
     cocos2d::Color4F color;
     float radius;
 };
-
+enum CanvasAction
+{
+    Clear,
+    None
+};
 #endif

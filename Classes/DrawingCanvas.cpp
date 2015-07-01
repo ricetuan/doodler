@@ -90,7 +90,12 @@ void DrawingCanvas::clearPressed(Ref *pSender, ui::Widget::TouchEventType eEvent
     if (eEventType == ui::Widget::TouchEventType::ENDED)
     {
         drawNode->clear();
+        SceneManager::getInstance()->sendData(CanvasAction::Clear);
     }
+}
+void DrawingCanvas::clearCanvas()
+{
+    drawNode->clear();
 }
 
 void DrawingCanvas::backPressed(Ref *pSender, ui::Widget::TouchEventType eEventType)

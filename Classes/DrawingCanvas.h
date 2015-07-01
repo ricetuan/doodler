@@ -19,6 +19,7 @@ public:
     void setNetworkedSession(bool networkedSession);
     bool getNetworkedSession();
     void receivedData(LineData lineData);
+    void clearCanvas();
 protected:
     cocos2d::DrawNode* drawNode;
     cocos2d::LayerColor* background;

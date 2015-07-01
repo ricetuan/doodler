@@ -22,13 +22,14 @@ public:
     void returnToLobby();
     void connectAndEnterNetworkedGame();
     void sendDataToBufferPool(LineData lineData);
-    void sendData();
+    void sendData(CanvasAction canvasAction = CanvasAction::None);
 
     
 private:
     void receivedData(const void* data, unsigned long length) override;
     void stateChanged(ConnectionState state) override;
     void loadDrawingScene(bool networked);
+    std::string createActionHeader(CanvasAction canvasAction);
     
     //TODO: add some limit of buffer pool
     std::vector<LineData> bufferPool;

@@ -73,9 +73,19 @@ void SceneManager::loadDrawingScene(bool networked)
 void SceneManager::receivedData(const void* data, unsigned long length)
 {
     const char* cstr = reinterpret_cast<const char*>(data);
-    std::string compressedJson = std::string(cstr, length);
-    
-    std::vector<LineData> dataList = this->compressor->unCompressData(compressedJson);
+    std::string compressedData = std::string(cstr, length);
+    //if the message contains some action header,
+    if (compressedData.substr(0,13) == "ActionHeader:") {
+        switch (stoi(compressedData.substr(13,1))) {
+            case CanvasAction::Clear:
+                this->drawingCanvas->clearCanvas();
+                return;
+            default:
+                break;
+        }
+    }
+
+    std::vector<LineData> dataList = this->compressor->unCompressData(compressedData);
     if (drawingCanvas)
     {
         for (auto it = dataList.cbegin(); it != dataList.cend(); ++it)
@@ -105,9 +115,17 @@ void SceneManager::stateChanged(ConnectionState state)
             break;
     }
 }
-
-void SceneManager::sendData()
+std::string SceneManager::createActionHeader(CanvasAction canvasAction)
 {
+    return "ActionHeader:"+std::to_string(canvasAction);
+}
+void SceneManager::sendData(CanvasAction canvasAction)
+{
+    if (canvasAction != CanvasAction::None) {
+        std::string header = createActionHeader(canvasAction);
+        this->networkingWrapper->sendData(header.c_str(),header.size());
+        return;
+    }
     std::string data;
     this->compressor->compressData(this->bufferPool, data);
     this->bufferPool.clear();
