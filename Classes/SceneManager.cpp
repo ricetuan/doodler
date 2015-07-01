@@ -108,7 +108,8 @@ void SceneManager::stateChanged(ConnectionState state)
 
 void SceneManager::sendData()
 {
-    std::string data = this->compressor->compressData(this->bufferPool);
+    std::string data;
+    this->compressor->compressData(this->bufferPool, data);
     this->bufferPool.clear();
     this->networkingWrapper->sendData(data.c_str(), data.length());
 }

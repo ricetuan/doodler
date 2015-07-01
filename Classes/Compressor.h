@@ -10,8 +10,8 @@
 #define __Doodler__Compressor__
 
 #include "JSONPacker.h"
-#include "zlib.h"
 #include "Constants.h"
+#include "zlib.h"
 
 class DrawingCanvas;
 class Compressor
@@ -20,8 +20,11 @@ public:
     Compressor();
     ~Compressor();
     
+    std::string compress_string(const std::string& str,int compressionlevel = Z_BEST_SPEED);
+    std::string decompress_string(const std::string& str);
+    
     static Compressor* getInstance();
-    std::string compressData(std::vector<LineData> dataList);
+    void compressData(std::vector<LineData> dataList, std::string &data);
     std::vector<LineData> unCompressData(std::string);
     
     

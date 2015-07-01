@@ -19,7 +19,7 @@ namespace JSONPacker
     std::string packLineData(std::vector<LineData> lineDataList)
     {
         rapidjson::Document document;
-        document.SetObject();
+        document.SetArray();
         
         for (int i=0;i<lineDataList.size(); ++i) {
             rapidjson::Value startPt(rapidjson::kObjectType);
@@ -42,12 +42,14 @@ namespace JSONPacker
             linedata.AddMember("radius", lineDataList[i].radius, document.GetAllocator());
             linedata.AddMember("color", lineColor, document.GetAllocator());
 
-            document.AddMember(std::to_string(i).c_str(),linedata,document.GetAllocator());
-        }
+            document.PushBack(linedata,document.GetAllocator());
+    }
         
         rapidjson::StringBuffer buffer;
         rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
         document.Accept(writer);
+        
+        CCLOG("%s",buffer.GetString());
         
         return std::string(buffer.GetString(), buffer.Size());
     }
@@ -57,14 +59,14 @@ namespace JSONPacker
         rapidjson::Document document;
         document.Parse<0>(json.c_str());
         std::vector<LineData> resultList;
-        for (rapidjson::Value::ConstMemberIterator itr = document.MemberonBegin(); itr != document.MemberonEnd(); ++itr)
+        for (int i =0; i < document.Capacity();++i)
         {
-            const rapidjson::Value& startDoc = itr->value["startPoint"];
-            const rapidjson::Value& endDoc = itr->value["endPoint"];
-            const rapidjson::Value& colorDoc = itr->value["color"];
+            const rapidjson::Value& startDoc = document[i]["startPoint"];
+            const rapidjson::Value& endDoc = document[i]["endPoint"];
+            const rapidjson::Value& colorDoc = document[i]["color"];
             Vec2 start = Vec2(startDoc["x"].GetDouble(), startDoc["y"].GetDouble());
             Vec2 end = Vec2(endDoc["x"].GetDouble(), endDoc["y"].GetDouble());
-            float radius = itr->value["radius"].GetDouble();
+            float radius = document[i]["radius"].GetDouble();
             
             float r = colorDoc["r"].GetDouble();
             float g = colorDoc["g"].GetDouble();
